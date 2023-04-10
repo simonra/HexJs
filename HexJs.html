@@ -109,14 +109,6 @@
                 return CubeAdd(cube, CubeDirection(direction));
             }
 
-            // function cube_direction(direction):
-            //     return cube_direction_vectors[direction]
-
-            // function cube_add(hex, vec):
-            //     return Cube(hex.q + vec.q, hex.r + vec.r, hex.s + vec.s)
-
-            // function cube_neighbor(cube, direction):
-            //     return cube_add(cube, cube_direction(direction))
             return {
                 CubeDirectionVectors:CubeDirectionVectors,
                 CubeDirection:CubeDirection,
@@ -180,7 +172,7 @@
                 tilePositions.push(centerCoord);
                 for (var k = 1; k <= radius; k++) {
                     var nextRing = CubeRing(centerCoord, k);
-                    debugger;
+                    // debugger;
                     for (let i = 0; i < nextRing.length; i++) {
                         // Rotate the array 1 position further for each ring we go out.
                         // So for the first ring outside the center, do nothing, start at the start.
@@ -188,7 +180,7 @@
                         // For the third ring, make it [second to last item, last item, first item, second item, ... third last item].
                         // And so on.
                         var nextIndex = (i + (nextRing.length - k + 1)) % nextRing.length;
-                        // const element = nextRing[inextIndex];
+                        // var nextIndex = (i + (nextRing.length - 1)) % nextRing.length;
                         tilePositions.push(nextRing[nextIndex]);
                     }
                     // for (var i = 0; i < k; i++) {
@@ -204,26 +196,7 @@
                 }
 
                 return tilePositions;
-                // if(radius == 0) {
-                //     return tilePositions;
-                // }
-                // var nextRingTilePositions = CubeRing(centerCoord, k);
-
             }
-
-            // function cube_scale(hex, factor):
-            //     return Cube(hex.q * factor, hex.r * factor, hex.s * factor)
-
-            // function cube_ring(center, radius):
-            //     var results = []
-            //     # this code doesn't work for radius == 0; can you see why?
-            //     var hex = cube_add(center,
-            //                         cube_scale(cube_direction(4), radius))
-            //     for each 0 ≤ i < 6:
-            //         for each 0 ≤ j < radius:
-            //             results.append(hex)
-            //             hex = cube_neighbor(hex, i)
-            //     return results
 
             return {
                 GetCenterTile:GetCenterTile,
@@ -231,6 +204,108 @@
                 CubeRing:CubeRing,
                 CubeSpiral:CubeSpiral,
                 SmoothCubeSpiral:SmoothCubeSpiral
+            }
+        }();
+
+        HexTests = function() {
+            function TestSmoothSpiral() {
+                console.log("Beginning testing of smooth spiral generation");
+                // var originPoint =  {q: 0, r: 0, s: 0};
+                // var firstRing = HexSpiralUtilities.CubeRing(originPoint, 1);
+                // var secondRing = HexSpiralUtilities.CubeRing(originPoint, 2);
+                var expectedList = [
+                    // Origin
+                    { q: 0, r: 0, s: 0 },
+                    // First ring, no offset
+                    { q: 1, r: 0, s: -1 }, // first element
+                    { q: 1, r: -1, s: 0 },
+                    { q: 0, r: -1, s: 1 },
+                    { q: -1, r: 0, s: 1 },
+                    { q: -1, r: 1, s: 0 },
+                    { q: 0, r: 1, s: -1 }, // last element
+                    // Second ring
+                    { q: 1, r: 1, s: -2 }, // last element moved to top
+                    { q: 2, r: 0, s: -2 }, // first element
+                    { q: 2, r: -1, s: -1 },
+                    { q: 2, r: -2, s: 0 },
+                    { q: 1, r: -2, s: 1 },
+                    { q: 0, r: -2, s: 2 },
+                    { q: -1, r: -1, s: 2 },
+                    { q: -2, r: 0, s: 2 },
+                    { q: -2, r: 1, s: 1 },
+                    { q: -2, r: 2, s: 0 },
+                    { q: -1, r: 2, s: -1 },
+                    { q: 0, r: 2, s: -2 }, // second last element
+                    // Third ring
+                    { q: 1, r: 2, s: -3 }, // second last element
+                    { q: 2, r: 1, s: -3 }, // last element
+                    { q: 3, r: 0, s: -3 }, // first element
+                    { q: 3, r: -1, s: -2 },
+                    { q: 3, r: -2, s: -1 },
+                    { q: 3, r: -3, s: 0 },
+                    { q: 2, r: -3, s: 1 },
+                    { q: 1, r: -3, s: 2 },
+                    { q: 0, r: -3, s: 3 },
+                    { q: -1, r: -2, s: 3 },
+                    { q: -2, r: -1, s: 3 },
+                    { q: -3, r: 0, s: 3 },
+                    { q: -3, r: 1, s: 2 },
+                    { q: -3, r: 2, s: 1 },
+                    { q: -3, r: 3, s: 0 },
+                    { q: -2, r: 3, s: -1 },
+                    { q: -1, r: 3, s: -2 },
+                    { q: 0, r: 3, s: -3 }, // third last element
+                    // Fourth ring
+                    { q: 1, r: 3, s: -4 }, // third last element
+                    { q: 2, r: 2, s: -4 }, // second last element
+                    { q: 3, r: 1, s: -4 }, // last element
+                    { q: 4, r: 0, s: -4 }, // first element
+                    { q: 4, r: -1, s: -3 },
+                    { q: 4, r: -2, s: -2 },
+                    { q: 4, r: -3, s: -1 },
+                    { q: 4, r: -4, s: 0 },
+                    { q: 3, r: -4, s: 1 },
+                    { q: 2, r: -4, s: 2 },
+                    { q: 1, r: -4, s: 3 },
+                    { q: 0, r: -4, s: 4 },
+                    { q: -1, r: -3, s: 4 },
+                    { q: -2, r: -2, s: 4 },
+                    { q: -3, r: -1, s: 4 },
+                    { q: -4, r: 0, s: 4 },
+                    { q: -4, r: 1, s: 3 },
+                    { q: -4, r: 2, s: 2 },
+                    { q: -4, r: 3, s: 1 },
+                    { q: -4, r: 4, s: 0 },
+                    { q: -3, r: 4, s: -1 },
+                    { q: -2, r: 4, s: -2 },
+                    { q: -1, r: 4, s: -3 },
+                    { q: 0, r: 4, s: -4 }, // fourth last element
+                ];
+
+                // Act
+                var radius = 4;
+                var originPoint =  {q: 0, r: 0, s: 0};
+                var actual = HexSpiralUtilities.SmoothCubeSpiral(originPoint, radius);
+
+                // Assert
+                console.assert(actual.length == expectedList.length, "Resulting list of tiles did not contain expected number of entries.");
+
+                // Make it easier to tweak the radius number above to see if anything changes with more or less circles
+                var numberOfItemsToTest = Math.min(expectedList.length, actual.length);
+
+                for (let i = 0; i < numberOfItemsToTest; i++) {
+                    var nextItemIsEqual = expectedList[i].q == actual[i].q
+                        && expectedList[i].r == actual[i].r
+                        && expectedList[i].s == actual[i].s
+                        ;
+                    console.assert(nextItemIsEqual, `Items at position ${i} did not match.`, { expected: expectedList[i], actual: actual[i]});
+                }
+
+                console.log("Done testing smooth spiral generation");
+            }
+
+            return {
+                TestSmoothSpiral:TestSmoothSpiral
             }
         }();
 
