@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>HexJs</title>
+    <style>
+        #GridContainer {
+            display: grid;
+        }
+        [data-type="tile"] {
+            border: 1px solid black;
+            margin: 1px;
+        }
+    </style>
+    <script>
+        const sizeX = 10;
+        const sizeY = 10;
+        window.addEventListener('load', function() {
+            MakeGrid(sizeX,sizeY);
+        });
+        function MakeGrid(sizeX, sizeY) {
+            var GridContainer = document.getElementById("GridContainer");
+            for (let x = 0; x < sizeX; x++) {
+                // const element = array[x];
+                for (let y = 0; y < sizeY; y++) {
+                    // const element = array[y];
+                    var nextTile = document.createElement("div");
+                    // nextTile.classList.add("tile");
+                    nextTile.dataset.type = "tile";
+                    nextTile.dataset.gridcoordinateX = `${x}`;
+                    nextTile.dataset.gridcoordinateY = `${y}`;
+
+                    var coordinate = { column: x, row: y };
+
+                    cubecoords = HexCoordinateSystemConvertionUtilities.GetCubeCoordinates(coordinate)
+
+                    nextTile.dataset.cubecoordinateQ = cubecoords.q;
+                    nextTile.dataset.cubecoordinateR = cubecoords.r;
+                    nextTile.dataset.cubecoordinateS = cubecoords.s;
+                    // nextTile.classList.add("tile");
+                    // nextTile.classList.add("xPos")
+                    // var xClass = document.createAttribute("class");
+
+                    // nextTile.style.gridRow = ``;
+                    nextTile.style.gridColumn = `${(1+x)}`;
+                    nextTile.style.gridRow = `${(1+y)}`;
+
+                    // var deletemelater = document.createTextNode(`GC: [${x},${y}]SC: [ToDo]`);
+                    nextTile.appendChild(document.createTextNode(`GC:`));
+                    nextTile.appendChild(document.createTextNode(`[${x},${y}]`));
+                    nextTile.appendChild(document.createElement("br"));
+                    nextTile.appendChild(document.createTextNode(`QC:`));
+                    nextTile.appendChild(document.createTextNode(`[${cubecoords.q},${cubecoords.r},${cubecoords.s}]`));
+                    GridContainer.appendChild(nextTile);
+                }
+            }
+        }
+
+        function PopulateSpiralCoordinateLabels() {
+            var tiles = document.getElementById("GridContainer");
+        }
+
+        HexCoordinateSystemConvertionUtilities = function() {
+            function GetCubeCoordinates(coordinate) {
+                var offset = -1; // odd = -1, even = + 1
+                var q = coordinate.column - (coordinate.row + offset * (coordinate.row & 1)) / 2;
+                var r = coordinate.row;
+                var s = -q - r;
+                return { q: q , r: r, s: s };
+            }
+
+            function GetGridOffsetCoordinates(coordinate)
+            {
+                var offset = -1; // odd = -1, even = + 1
+                var column = coordinate.q + (coordinate.r + offset * (coordinate.r & 1)) / 2;
+                var row = coordinate.r;
+                return { x: column, y: row };
+            }
+
+            return {
+                GetCubeCoordinates:GetCubeCoordinates,
+                GetGridOffsetCoordinates:GetGridOffsetCoordinates
+            }
+        }();
+
+        HexCubeCoordUtilities = function() {
+            var CubeDirectionVectors = [
+                { q: +1, r:  0, s: -1 }, // right (straight) when pointy end up
+                { q: +1, r: -1, s:  0 }, // up and right when pointy end up
+                { q:  0, r: -1, s: +1 }, // up and left when pointy end up
+                { q: -1, r:  0, s: +1 }, // left (straight) when pointy end up
+                { q: -1, r: +1, s:  0 }, // down and left when pointy end up
+                { q:  0, r: +1, s: -1 }, // down and right when pointy end up
+            ];
+
+            function CubeDirection(directionIndex) {
+                return CubeDirectionVectors[directionIndex];
+            }
+
+            function CubeAdd(coordinate, vector) {
+                return {
+                    q: coordinate.q + vector.q,
+                    r: coordinate.r + vector.r,
+                    s: coordinate.s + vector.s
+                };
+            }
+
+            function CubeNeighbor(cube, direction) {
+                return CubeAdd(cube, CubeDirection(direction));
+            }
+
+            // function cube_direction(direction):
+            //     return cube_direction_vectors[direction]
+
+            // function cube_add(hex, vec):
+            //     return Cube(hex.q + vec.q, hex.r + vec.r, hex.s + vec.s)
+
+            // function cube_neighbor(cube, direction):
+            //     return cube_add(cube, cube_direction(direction))
+            return {
+                CubeDirectionVectors:CubeDirectionVectors,
+                CubeDirection:CubeDirection,
+                CubeAdd:CubeAdd,
+                CubeNeighbor:CubeNeighbor
+            }
+        }();
+
+        HexSpiralUtilities = function () {
+            function GetCenterTile(gridSizeX_zeroIndexed, gridSizeY_zeroIndexed) {
+                var xCenter = Math.floor(gridSizeX_zeroIndexed/2);
+                var yCenter = Math.floor(gridSizeY_zeroIndexed/2);
+                return { x: xCenter, y: yCenter };
+            }
+
+            function GetNextTile(currentX, currentY, centerX, centerY) {
+
+            }
+
+            function GetPreviousTile(currentX, currentY, centerX, centerY) {
+                if(currentX == centerX && currentY == centerY) {
+                    return { x: centerX, y: centerY };
+                }
+            }
+
+            function CubeScale(coordinate, factor) {
+                return {
+                    q: coordinate.q * factor,
+                    r: coordinate.r * factor,
+                    s: coordinate.s * factor
+                };
+            }
+
+            function CubeRing(centerCoord, radius) {
+                var tilePositions = [];
+                var startingDirectionIndex = 0;
+                var tile = HexCubeCoordUtilities.CubeAdd(
+                    centerCoord, CubeScale(HexCubeCoordUtilities.CubeDirection(startingDirectionIndex), radius)
+                );
+                for (let i = startingDirectionIndex; i < 6 + startingDirectionIndex; i++) {
+                    for (let j = 0; j < radius; j++) {
+                        tilePositions.push(tile);
+                        tile = HexCubeCoordUtilities.CubeNeighbor(tile, ((i + 2) % 6));
+                    }
+                }
+
+                return tilePositions;
+            }
+
+            function CubeSpiral(centerCoord, radius) {
+                var tilePositions = [];
+                tilePositions.push(centerCoord);
+                for (let k = 0; k <= radius; k++) {
+                    tilePositions.push(CubeRing(centerCoord, k))
+                }
+                return tilePositions;
+            }
+
+            function SmoothCubeSpiral(centerCoord, radius) {
+                var tilePositions = [];
+                tilePositions.push(centerCoord);
+                for (var k = 1; k <= radius; k++) {
+                    var nextRing = CubeRing(centerCoord, k);
+                    debugger;
+                    for (let i = 0; i < nextRing.length; i++) {
+                        var nextIndex = (i + (nextRing.length - k + 1)) % nextRing.length;
+                        // const element = nextRing[inextIndex];
+                        tilePositions.push(nextRing[nextIndex]);
+                    }
+                    // for (var i = 0; i < k; i++) {
+                    //     var lastElement = nextRing.pop();
+                    //     nextRing.unshift(lastElement);
+                    //     console.log("we do the shift!");
+                    //     // For the spiral to have the effect of "having moved out of the square where the last circle revolution ended",
+                    //     // rotate the next ring so that the n'th last element becomes the first,
+                    //     // starting with 0 shift for the first ring of radius 1.
+                    //     // nextRing.unshift(nextRing.pop());
+                    // }
+                    // tilePositions = tilePositions.concat(nextRing);
+                }
+
+                return tilePositions;
+                // if(radius == 0) {
+                //     return tilePositions;
+                // }
+                // var nextRingTilePositions = CubeRing(centerCoord, k);
+
+            }
+
+            // function cube_scale(hex, factor):
+            //     return Cube(hex.q * factor, hex.r * factor, hex.s * factor)
+
+            // function cube_ring(center, radius):
+            //     var results = []
+            //     # this code doesn't work for radius == 0; can you see why?
+            //     var hex = cube_add(center,
+            //                         cube_scale(cube_direction(4), radius))
+            //     for each 0 ≤ i < 6:
+            //         for each 0 ≤ j < radius:
+            //             results.append(hex)
+            //             hex = cube_neighbor(hex, i)
+            //     return results
+
+            return {
+                GetCenterTile:GetCenterTile,
+                CubeScale:CubeScale,
+                CubeRing:CubeRing,
+                CubeSpiral:CubeSpiral,
+                SmoothCubeSpiral:SmoothCubeSpiral
+            }
+        }();
+
+        HexNeighbourUtilities = function() {
+            function GetCoordinatesOfTileToTheLeft(currentX, currentY) {
+                var neighbourX = currentX - 1;
+                var neighbourY = currentY;
+                return { x: neighbourX, y: neighbourY };
+            }
+            function GetCoordinatesOfTileToTheRight(currentX, currentY) {
+                var neighbourX = currentX + 1;
+                var neighbourY = currentY;
+                return { x: neighbourX, y: neighbourY };
+            }
+            function GetCoordinatesOfTileAboveAndToTheLeft(currentX, currentY) {
+                var neighbourX = currentX - 1;
+                var neighbourY = currentY - 1;
+                return { x: neighbourX, y: neighbourY };
+            }
+            function GetCoordinatesOfTileAboveAndToTheRight(currentX, currentY) {
+                var neighbourX = currentX + 1;
+                var neighbourY = currentY - 1;
+                return { x: neighbourX, y: neighbourY };
+            }
+            function GetCoordinatesOfTileBelowAndToTheLeft(currentX, currentY) {
+                var neighbourX = currentX - 1;
+                var neighbourY = currentY + 1;
+                return { x: neighbourX, y: neighbourY };
+            }
+            function GetCoordinatesOfTileBelowAndToTheRight(currentX, currentY) {
+                var neighbourX = currentX + 1;
+                var neighbourY = currentY + 1;
+                return { x: neighbourX, y: neighbourY };
+            }
+
+            return {
+                GetCoordinatesOfTileToTheLeft:GetCoordinatesOfTileToTheLeft,
+                GetCoordinatesOfTileToTheRight:GetCoordinatesOfTileToTheRight,
+                GetCoordinatesOfTileAboveAndToTheLeft:GetCoordinatesOfTileAboveAndToTheLeft,
+                GetCoordinatesOfTileAboveAndToTheRight:GetCoordinatesOfTileAboveAndToTheRight,
+                GetCoordinatesOfTileBelowAndToTheLeft:GetCoordinatesOfTileBelowAndToTheLeft,
+                GetCoordinatesOfTileBelowAndToTheRight:GetCoordinatesOfTileBelowAndToTheRight,
+            }
+        }();
+    </script>
+</head>
+<body>
+<div id="GridContainer"></div>
+<h1>"start()" in console and enter</h1>
+</body>
+</html>
