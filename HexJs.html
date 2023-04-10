@@ -3,18 +3,64 @@
 <head>
     <meta charset="UTF-8" />
     <title>HexJs</title>
-    <style>
+    <!-- <style>
         #GridContainer {
             display: grid;
+            /* --amount: 5;
+            position: relative;
+            padding: 0;
+            margin: 0;
+            list-style-type: none;
+            display: grid;
+            grid-template-columns: repeat(var(--amount), 1fr 2fr) 1fr;
+            grid-gap: 2.5rem 5rem; */
         }
+        /* [data-type="tile"] {
+            position: relative;
+            grid-column: 1/span 3;
+            grid-row: calc(var(--counter) + var(--counter))/span 2;
+            filter: drop-shadow(0 0 10px rgba(68, 68, 68, 0.08));
+            height: 0;
+            padding-bottom: 90%;
+
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            font-size: 1.125rem;
+            color: #111111;
+            background-color: white;
+            clip-path: polygon(75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%, 25% 0);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem 25%;
+            text-decoration: none;
+            text-align: center;
+            transition: transform 0.24s ease-out;
+        } */
         [data-type="tile"] {
             border: 1px solid black;
             margin: 1px;
+
+            width: var(--s);
+            margin: var(--m);
+            height: calc(var(--s)*1.1547);
+            display: inline-block;
+            font-size:initial;
+            clip-path: polygon(0% 25%, 0% 75%, 50% 100%, 100% 75%, 100% 25%, 50% 0%);
+            /* clip-path: polygon(75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%, 25% 0); */
+            background: green;
+            margin-bottom: calc(var(--m) - var(--s)*0.2885);
         }
-    </style>
+
+    </style> -->
     <script>
+        // Global constants
         const sizeX = 10;
         const sizeY = 10;
+        const sqrt3 = 1.7320508075688772;
+
         window.addEventListener('load', function() {
             MakeGrid(sizeX,sizeY);
         });
@@ -43,8 +89,12 @@
                     // var xClass = document.createAttribute("class");
 
                     // nextTile.style.gridRow = ``;
-                    nextTile.style.gridColumn = `${(1+x)}`;
-                    nextTile.style.gridRow = `${(1+y)}`;
+                    // nextTile.style.gridColumn = `${(1+x)}`;
+                    // nextTile.style.gridRow = `${(1+y)}`;
+                    // nextTile.style.clipPath = "polygon(0% 25%, 0% 75%, 50% 100%, 100% 75%, 100% 25%, 50% 0%)";
+                    // if((y % 2) == 1) {
+                    //     nextTile.style.offset = "10px 30px";
+                    // }
 
                     // Comment out the display here when no longer needed for visual debugging
                     nextTile.appendChild(document.createTextNode(`GC:`));
@@ -56,6 +106,7 @@
                 }
             }
             PopulateSpiralCoordinates();
+            PositioningLib.PutTilesInRightPosition();
         }
 
         function PopulateSpiralCoordinates() {
@@ -89,6 +140,121 @@
                 }
             });
         }
+
+        PositioningLib = function() {
+            function GetDisplayDimentions() {
+                var width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+                var height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+                return { width: width, height: height };
+            }
+
+            function GetIndividualTileSize() {
+                var screenSize = GetDisplayDimentions();
+                var thresholdRadius = 15;
+                // Because we are in a "pointy size up" system, width is sqrt(3) * radius.
+                // var thresholdWidth = Math.sqrt(3) * thresholdRadius;
+                var thresholdWidth = sqrt3 * thresholdRadius;
+                var thresholdHeight = 2 * thresholdRadius;
+                // var thresholdDiameter = 2 * thresholdRadius;
+
+                if(screenSize.width < thresholdWidth * sizeX || screenSize.height < thresholdHeight * sizeY) {
+                    return thresholdRadius;
+                }
+
+                var margin = 15;
+
+                var availableWidth = screenSize.width - 2 * margin;
+                var maxDiameterGivenWidth = availableWidth/sizeX;
+                // var maxByWidth = Math.floor(maxDiameterGivenWidth);
+                var maxRadiusGivenWidth = maxDiameterGivenWidth/sqrt3;
+                var maxByWidth = Math.floor(maxRadiusGivenWidth);
+
+                var availableHeight = screenSize.height - 2 * margin;
+                var maxDiameterGivenHeight = availableWidth/sizeX;
+                // var maxByHeight = Math.floor(maxDiameterGivenHeight);
+                var maxRadiusGivenHeight = maxDiameterGivenHeight/2;
+                var maxByHeight = Math.floor(maxRadiusGivenHeight);
+
+                return Math.min(maxByWidth, maxByHeight);
+            }
+
+            function SizeContainer(tileSize) {
+                var container = document.getElementById("GridContainer");
+                var width = tileSize * sizeY;
+                var height = tileSize * sizeY;
+                container.style.width = `${width}px`;
+                container.style.height = `${height}px`;
+                container.style.position = "relative";
+                container.style.padding = "15px"; // Same as margin used in individual calculator
+            }
+
+            function PutTilesInRightPosition() {
+                /* ToDo:
+                 *  - Find bounding size of screen
+                 *  - If below size threshold (15px by 15 px per tile or something like that?)
+                 *      - Don't dynmaicaly calculate tile size
+                 *  - Calculate size of tiles based on everything fitting within both height and width
+                 *  - For each tile, position it in x and y
+                 *  - Profit??*/
+                var tiles = document.getElementById("GridContainer").childNodes;
+
+                var tileSize = GetIndividualTileSize();
+                SizeContainer(tileSize);
+                var margin = 15;
+
+                var tileCssWidth = `${tileSize * sqrt3}px`
+                var tileCssHeight = `${tileSize * 2}px`
+
+                tiles.forEach(tile => {
+                    if(tile.dataset.spiralIndex >= 0) {
+                        // value exists, do nothing
+                        // tile.style.border = "5px solid black"
+                        tile.style.color = "yellow";
+                    }
+                    else {
+                        // tile.style.display = "none";
+                    }
+
+                    tile.style.textAlign = "center";
+                    // tile.style.paddingTop = "15px";
+                    tile.style.width = tileCssWidth;
+                    tile.style.height = tileCssHeight;
+                    tile.style.maxWidth = tileCssWidth;
+                    tile.style.maxHeight = tileCssHeight;
+                    // tile.style.minWidth = tileCssWidth;
+                    // tile.style.minHeight = tileCssHeight;
+                    tile.style.position = "absolute";
+
+                    // In the orientation, the horizontal distance between adjacent hexagon centers is horiz = width = sqrt(3) * size. The vertical distance is vert == 3/4 * height == 3/2 * size.
+
+                    var gapFactor = 1.075;
+
+                    var topPos = margin + tile.dataset.gridcoordinateY * tileSize * (3/2);
+                    var leftPos = margin + tile.dataset.gridcoordinateX * tileSize * sqrt3;
+                    topPos *= gapFactor;
+                    leftPos *= gapFactor;
+                    if(tile.dataset.gridcoordinateY % 2 == 1) {
+                        // We are using an odd row offset grid, so move very odd row half a tile to the right
+                        leftPos += tileSize - 5;
+                    }
+
+                    tile.style.top = `${topPos}px`;
+                    tile.style.left = `${leftPos}px`;
+
+                    if((tile.dataset.gridcoordinateY % 2 == 1 && tile.dataset.gridcoordinateX % 2 == 0) || (tile.dataset.gridcoordinateY % 2 == 0 && tile.dataset.gridcoordinateX % 2 == 1)) {
+                        tile.style.background = "red";
+                    } else {
+                        tile.style.background = "green";
+                    }
+                    tile.style.clipPath = "polygon(0% 25%, 0% 75%, 50% 100%, 100% 75%, 100% 25%, 50% 0%)";
+                });
+
+            }
+
+            return {
+                PutTilesInRightPosition:PutTilesInRightPosition
+            }
+        }();
 
         HexCoordinateSystemConvertionUtilities = function() {
             function GetCubeCoordinates(coordinate) {
@@ -155,7 +321,7 @@
         HexSpiralUtilities = function () {
             function GetCenterTile(gridSizeX_zeroIndexed, gridSizeY_zeroIndexed) {
                 var xCenter = Math.floor(gridSizeX_zeroIndexed/2);
-                var yCenter = Math.floor(gridSizeY_zeroIndexed/2);
+                var yCenter = Math.floor(gridSizeY_zeroIndexed/2) - 1;
                 return { x: xCenter, y: yCenter };
             }
 
@@ -388,7 +554,7 @@
     </script>
 </head>
 <body>
-<div id="GridContainer"></div>
-<h1>"start()" in console and enter</h1>
+    <h1>"start()" in console and enter</h1>
+    <div id="GridContainer"></div>
 </body>
 </html>
