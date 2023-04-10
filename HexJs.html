@@ -3,6 +3,18 @@
 <head>
     <meta charset="UTF-8" />
     <title>HexJs</title>
+    <style>
+        #GridContainer {
+            position: relative;
+            padding: 15px; /*Same as margin used in individual calculator*/
+        }
+
+        [data-type="tile"] {
+            text-align: center;
+            position: absolute;
+            clip-path: polygon(0% 25%, 0% 75%, 50% 100%, 100% 75%, 100% 25%, 50% 0%);
+        }
+    </style>
     <!-- <style>
         #GridContainer {
             display: grid;
@@ -184,8 +196,8 @@
                 var height = tileSize * sizeY;
                 container.style.width = `${width}px`;
                 container.style.height = `${height}px`;
-                container.style.position = "relative";
-                container.style.padding = "15px"; // Same as margin used in individual calculator
+                // container.style.position = "relative";// moved to shared css
+                // container.style.padding = "15px"; // Same as margin used in individual calculator // Moved to shared css
             }
 
             function PutTilesInRightPosition() {
@@ -215,7 +227,7 @@
                         // tile.style.display = "none";
                     }
 
-                    tile.style.textAlign = "center";
+                    // tile.style.textAlign = "center"; // moved to shared css
                     // tile.style.paddingTop = "15px";
                     tile.style.width = tileCssWidth;
                     tile.style.height = tileCssHeight;
@@ -223,7 +235,7 @@
                     tile.style.maxHeight = tileCssHeight;
                     // tile.style.minWidth = tileCssWidth;
                     // tile.style.minHeight = tileCssHeight;
-                    tile.style.position = "absolute";
+                    // tile.style.position = "absolute"; // moved to shared css
 
                     // In the orientation, the horizontal distance between adjacent hexagon centers is horiz = width = sqrt(3) * size. The vertical distance is vert == 3/4 * height == 3/2 * size.
 
@@ -246,7 +258,7 @@
                     } else {
                         tile.style.background = "green";
                     }
-                    tile.style.clipPath = "polygon(0% 25%, 0% 75%, 50% 100%, 100% 75%, 100% 25%, 50% 0%)";
+                    // tile.style.clipPath = "polygon(0% 25%, 0% 75%, 50% 100%, 100% 75%, 100% 25%, 50% 0%)"; // moved to shared css
                 });
 
             }
