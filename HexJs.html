@@ -138,13 +138,34 @@
 
         function MakeSpiralArrows() {
             function GetAngle(firstVec2, secondVec2) {
-                // debugger;
-                var magnitudeFirst = Math.sqrt(Math.pow(firstVec2.x,2) + Math.pow(firstVec2.y,2));
-                var magnitudeSecond = Math.sqrt(Math.pow(secondVec2.x,2) + Math.pow(secondVec2.y,2));
-                var dotProduct = firstVec2.x * secondVec2.x + firstVec2.y * secondVec2.y;
-                var angleRadians = Math.acos(dotProduct/(magnitudeFirst*magnitudeSecond));
-                var angleDegrees = angleRadians * radToDeg;
-                return angleDegrees;
+                // // debugger;
+                // var magnitudeFirst = Math.sqrt(Math.pow(firstVec2.x,2) + Math.pow(firstVec2.y,2));
+                // var magnitudeSecond = Math.sqrt(Math.pow(secondVec2.x,2) + Math.pow(secondVec2.y,2));
+                // var dotProduct = firstVec2.x * secondVec2.x + firstVec2.y * secondVec2.y;
+                // var angleRadians = Math.acos(dotProduct/(magnitudeFirst*magnitudeSecond));
+                // var angleDegrees = angleRadians * radToDeg;
+                // return angleDegrees;
+
+                // Screw the above, only 6 possible angles: 0, 45, 135, 180, 225, 315 (, back to 360/0)
+                if(firstVec2.y == secondVec2.y) {
+                    if(firstVec2.x < secondVec2.x) {
+                        return 0;
+                    } else {
+                        return 180;
+                    }
+                } else if(firstVec2.y < secondVec2.y) {
+                    if(firstVec2.x < secondVec2.x) {
+                        return 315;
+                    } else {
+                        return 225;
+                    }
+                } else {
+                    if(firstVec2.x < secondVec2.x) {
+                        return 45;
+                    } else {
+                        return 135;
+                    }
+                }
             }
 
             function CalculateArrowPosition(currentTile, nextTile) {
