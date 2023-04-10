@@ -182,6 +182,11 @@
                     var nextRing = CubeRing(centerCoord, k);
                     debugger;
                     for (let i = 0; i < nextRing.length; i++) {
+                        // Rotate the array 1 position further for each ring we go out.
+                        // So for the first ring outside the center, do nothing, start at the start.
+                        // Then for the second ring, make the list go [last item, first item, second item, ... second to last item].
+                        // For the third ring, make it [second to last item, last item, first item, second item, ... third last item].
+                        // And so on.
                         var nextIndex = (i + (nextRing.length - k + 1)) % nextRing.length;
                         // const element = nextRing[inextIndex];
                         tilePositions.push(nextRing[nextIndex]);
