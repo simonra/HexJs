@@ -14,6 +14,26 @@
             position: absolute;
             clip-path: polygon(0% 25%, 0% 75%, 50% 100%, 100% 75%, 100% 25%, 50% 0%);
         }
+        [data-spiral-index] {
+            /* Selector above works! should do the same as .SpiralMember */
+            color: darkblue;
+        }
+        .NotInSpiral {
+            /* display: none; */
+            opacity: 0.33;
+        }
+        .EvenRow {
+
+        }
+        .OddRow {
+
+        }
+        .EvenColumn{
+            background-color: aquamarine;
+        }
+        .OddColumn {
+            background-color: coral;
+        }
     </style>
     <!-- <style>
         #GridContainer {
@@ -221,9 +241,11 @@
                     if(tile.dataset.spiralIndex >= 0) {
                         // value exists, do nothing
                         // tile.style.border = "5px solid black"
-                        tile.style.color = "yellow";
+                        tile.classList.add("SpiralMember");
+                        // tile.style.color = "yellow";
                     }
                     else {
+                        tile.classList.add("NotInSpiral");
                         // tile.style.display = "none";
                     }
 
@@ -253,11 +275,22 @@
                     tile.style.top = `${topPos}px`;
                     tile.style.left = `${leftPos}px`;
 
-                    if((tile.dataset.gridcoordinateY % 2 == 1 && tile.dataset.gridcoordinateX % 2 == 0) || (tile.dataset.gridcoordinateY % 2 == 0 && tile.dataset.gridcoordinateX % 2 == 1)) {
-                        tile.style.background = "red";
+                    if(tile.dataset.gridcoordinateY % 2 == 0) {
+                        tile.classList.add('EvenRow');
                     } else {
-                        tile.style.background = "green";
+                        tile.classList.add('OddRow');
                     }
+                    if (tile.dataset.gridcoordinateX % 2 == 0) {
+                        tile.classList.add('EvenColumn');
+                    } else {
+                        tile.classList.add('OddColumn');
+                    }
+
+                    // if((tile.dataset.gridcoordinateY % 2 == 1 && tile.dataset.gridcoordinateX % 2 == 0) || (tile.dataset.gridcoordinateY % 2 == 0 && tile.dataset.gridcoordinateX % 2 == 1)) {
+                    //     tile.style.background = "red";
+                    // } else {
+                    //     tile.style.background = "green";
+                    // }
                     // tile.style.clipPath = "polygon(0% 25%, 0% 75%, 50% 100%, 100% 75%, 100% 25%, 50% 0%)"; // moved to shared css
                 });
 
