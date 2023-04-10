@@ -12,6 +12,7 @@
         [data-type="tile"] {
             text-align: center;
             position: absolute;
+            overflow: hidden;
             clip-path: polygon(0% 25%, 0% 75%, 50% 100%, 100% 75%, 100% 25%, 50% 0%);
         }
         [data-spiral-index] {
@@ -36,6 +37,10 @@
         }
 
         .tileConnectionArrow {
+            position: absolute;
+            background-color: darkslategray;
+            z-index: 2;
+            overflow: hidden;
             clip-path: polygon(0 40%, 60% 40%, 60% 20%, 100% 50%, 60% 80%, 60% 60%, 0 60%); /* Somewhat thin */
         }
     </style>
@@ -88,6 +93,7 @@
             }
             PopulateSpiralCoordinates();
             PositioningLib.PutTilesInRightPosition();
+            MakeSpiralArrows();
         }
 
         function PopulateSpiralCoordinates() {
@@ -132,8 +138,9 @@
 
         function MakeSpiralArrows() {
             function GetAngle(firstVec2, secondVec2) {
-                var magnitudeFirst = Math.sqrt(Math.pow(firstVec2.x,2) + Math.pow(firstVec2.y));
-                var magnitudeSecond = Math.sqrt(Math.pow(secondVec2.x,2) + Math.pow(secondVec2.y));
+                // debugger;
+                var magnitudeFirst = Math.sqrt(Math.pow(firstVec2.x,2) + Math.pow(firstVec2.y,2));
+                var magnitudeSecond = Math.sqrt(Math.pow(secondVec2.x,2) + Math.pow(secondVec2.y,2));
                 var dotProduct = firstVec2.x * secondVec2.x + firstVec2.y * secondVec2.y;
                 var angleRadians = Math.acos(dotProduct/(magnitudeFirst*magnitudeSecond));
                 var angleDegrees = angleRadians * radToDeg;
@@ -158,14 +165,14 @@
                 var nextTilePositionData = GetPositionMetaData(nextTile);
                 // start by making it radius/2 long (half the way to the middle on either side, a bit shorter with padding)
                 var arrowCenter = {
-                    x: Math.floor((currentTilePositionData.centerCoordinate.x + nextTilePositionData.centerCoordinate.x)/2),
-                    y: Math.floor((currentTilePositionData.centerCoordinate.y + nextTilePositionData.centerCoordinate.y)/2)
+                    x: Math.floor((currentTilePositionData.center.x + nextTilePositionData.center.x)/2),
+                    y: Math.floor((currentTilePositionData.center.y + nextTilePositionData.center.y)/2)
                 };
                 // var arrowDirection = {
-                //     x: Math.floor(nextTilePositionData.centerCoordinate.x - currentTilePositionData.centerCoordinate.x),
-                //     y: Math.floor(nextTilePositionData.centerCoordinate.y - currentTilePositionData.centerCoordinate.y)
+                //     x: Math.floor(nextTilePositionData.center.x - currentTilePositionData.center.x),
+                //     y: Math.floor(nextTilePositionData.center.y - currentTilePositionData.center.y)
                 // };
-                var arrowAngle = GetAngle({x: currentTilePositionData.centerCoordinate.x, y: currentTilePositionData.centerCoordinate.y}, {x: nextTilePositionData.centerCoordinate.x, y: nextTilePositionData.centerCoordinate.y});
+                var arrowAngle = GetAngle({x: currentTilePositionData.center.x, y: currentTilePositionData.center.y}, {x: nextTilePositionData.center.x, y: nextTilePositionData.center.y});
 
                 var arrowOffsetLeft = Math.floor(arrowCenter.x - hexRadiusSize / 2);
                 var arrowOffsetTop = Math.floor(arrowCenter.y - hexRadiusSize / 2);;
@@ -174,7 +181,9 @@
                     center: arrowCenter,
                     angle: arrowAngle,
                     offsetLeft: arrowOffsetLeft,
-                    offsetTop: arrowOffsetTop
+                    offsetTop: arrowOffsetTop,
+                    width: (hexRadiusSize / 2),
+                    height: (hexRadiusSize / 2)
                 };
             }
 
@@ -201,6 +210,7 @@
             //     }
             // }
             // var tiles = GridContainer.childNodes.filter(n => { return n.dataset.type == "tile"; } );
+            debugger;
             for (let i = 0; i < spiralCoordinatesList.length - 1; i++) {
                 var nextArrow = document.createElement("div");
                 nextArrow.dataset.type = "arrow"
@@ -208,6 +218,16 @@
                 var arrowPosition = CalculateArrowPosition(spiralCoordinatesList[i], spiralCoordinatesList[i+1]);
                 // ToDo: add position to arrow
                 // ToDo: Figure out rotation. Probably has to be to add some css rotation property we can calculate here?
+                // nextArrow.style.minWidth = `${arrowPosition.width}px`;
+                // nextArrow.style.minHeight = `${arrowPosition.height}px`;
+                // nextArrow.style.maxWidth = `${arrowPosition.width}px`;
+                // nextArrow.style.maxHeight = `${arrowPosition.height}px`;
+                nextArrow.style.transform = `rotate(-${arrowPosition.angle}deg)`;
+                nextArrow.style.width = `${arrowPosition.width}px`;
+                nextArrow.style.height = `${arrowPosition.height}px`;
+                nextArrow.style.left = `${arrowPosition.offsetLeft}px`;
+                nextArrow.style.top = `${arrowPosition.offsetTop}px`;
+                nextArrow.appendChild(document.createTextNode(`aaaaaaa`));
                 GridContainer.appendChild(nextArrow);
             }
         }
