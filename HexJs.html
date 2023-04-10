@@ -35,58 +35,6 @@
             background-color: coral;
         }
     </style>
-    <!-- <style>
-        #GridContainer {
-            display: grid;
-            /* --amount: 5;
-            position: relative;
-            padding: 0;
-            margin: 0;
-            list-style-type: none;
-            display: grid;
-            grid-template-columns: repeat(var(--amount), 1fr 2fr) 1fr;
-            grid-gap: 2.5rem 5rem; */
-        }
-        /* [data-type="tile"] {
-            position: relative;
-            grid-column: 1/span 3;
-            grid-row: calc(var(--counter) + var(--counter))/span 2;
-            filter: drop-shadow(0 0 10px rgba(68, 68, 68, 0.08));
-            height: 0;
-            padding-bottom: 90%;
-
-            position: absolute;
-            height: 100%;
-            width: 100%;
-            font-size: 1.125rem;
-            color: #111111;
-            background-color: white;
-            clip-path: polygon(75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%, 25% 0);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 2rem 25%;
-            text-decoration: none;
-            text-align: center;
-            transition: transform 0.24s ease-out;
-        } */
-        [data-type="tile"] {
-            border: 1px solid black;
-            margin: 1px;
-
-            width: var(--s);
-            margin: var(--m);
-            height: calc(var(--s)*1.1547);
-            display: inline-block;
-            font-size:initial;
-            clip-path: polygon(0% 25%, 0% 75%, 50% 100%, 100% 75%, 100% 25%, 50% 0%);
-            /* clip-path: polygon(75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%, 25% 0); */
-            background: green;
-            margin-bottom: calc(var(--m) - var(--s)*0.2885);
-        }
-
-    </style> -->
     <script>
         // Global constants
         const sizeX = 10;
@@ -116,17 +64,6 @@
                     nextTile.dataset.cubecoordinateQ = cubecoords.q;
                     nextTile.dataset.cubecoordinateR = cubecoords.r;
                     nextTile.dataset.cubecoordinateS = cubecoords.s;
-                    // nextTile.classList.add("tile");
-                    // nextTile.classList.add("xPos")
-                    // var xClass = document.createAttribute("class");
-
-                    // nextTile.style.gridRow = ``;
-                    // nextTile.style.gridColumn = `${(1+x)}`;
-                    // nextTile.style.gridRow = `${(1+y)}`;
-                    // nextTile.style.clipPath = "polygon(0% 25%, 0% 75%, 50% 100%, 100% 75%, 100% 25%, 50% 0%)";
-                    // if((y % 2) == 1) {
-                    //     nextTile.style.offset = "10px 30px";
-                    // }
 
                     // Comment out the display here when no longer needed for visual debugging
                     nextTile.appendChild(document.createTextNode(`GC:`));
@@ -146,10 +83,6 @@
             var centerTile = HexSpiralUtilities.GetCenterTile(sizeX, sizeY);
             var centerTileCubeCoords = HexCoordinateSystemConvertionUtilities.GetCubeCoordinates({row: centerTile.y, column: centerTile.x});
             var spiralCoords = HexSpiralUtilities.SmoothCubeSpiral(centerTileCubeCoords, 4);
-            // var spiralCoordsOffsetSystem = [];
-            // for (let i = 0; i < spiralCoords.length; i++) {
-            //     spiralCoordsOffsetSystem.push(HexCoordinateSystemConvertionUtilities.GetGridOffsetCoordinates(spiral[i]));
-            // }
 
             tiles.forEach(tile => {
                 tileCubeCoordinate = {
@@ -216,8 +149,6 @@
                 var height = tileSize * sizeY;
                 container.style.width = `${width}px`;
                 container.style.height = `${height}px`;
-                // container.style.position = "relative";// moved to shared css
-                // container.style.padding = "15px"; // Same as margin used in individual calculator // Moved to shared css
             }
 
             function PutTilesInRightPosition() {
@@ -239,27 +170,18 @@
 
                 tiles.forEach(tile => {
                     if(tile.dataset.spiralIndex >= 0) {
-                        // value exists, do nothing
-                        // tile.style.border = "5px solid black"
                         tile.classList.add("SpiralMember");
-                        // tile.style.color = "yellow";
                     }
                     else {
                         tile.classList.add("NotInSpiral");
-                        // tile.style.display = "none";
                     }
 
-                    // tile.style.textAlign = "center"; // moved to shared css
-                    // tile.style.paddingTop = "15px";
                     tile.style.width = tileCssWidth;
                     tile.style.height = tileCssHeight;
                     tile.style.maxWidth = tileCssWidth;
                     tile.style.maxHeight = tileCssHeight;
                     // tile.style.minWidth = tileCssWidth;
                     // tile.style.minHeight = tileCssHeight;
-                    // tile.style.position = "absolute"; // moved to shared css
-
-                    // In the orientation, the horizontal distance between adjacent hexagon centers is horiz = width = sqrt(3) * size. The vertical distance is vert == 3/4 * height == 3/2 * size.
 
                     var gapFactor = 1.075;
 
@@ -285,13 +207,6 @@
                     } else {
                         tile.classList.add('OddColumn');
                     }
-
-                    // if((tile.dataset.gridcoordinateY % 2 == 1 && tile.dataset.gridcoordinateX % 2 == 0) || (tile.dataset.gridcoordinateY % 2 == 0 && tile.dataset.gridcoordinateX % 2 == 1)) {
-                    //     tile.style.background = "red";
-                    // } else {
-                    //     tile.style.background = "green";
-                    // }
-                    // tile.style.clipPath = "polygon(0% 25%, 0% 75%, 50% 100%, 100% 75%, 100% 25%, 50% 0%)"; // moved to shared css
                 });
 
             }
@@ -369,16 +284,6 @@
                 var yCenter = Math.floor(gridSizeY_zeroIndexed/2) - 1;
                 return { x: xCenter, y: yCenter };
             }
-
-            // function GetNextTile(currentX, currentY, centerX, centerY) {
-
-            // }
-
-            // function GetPreviousTile(currentX, currentY, centerX, centerY) {
-            //     if(currentX == centerX && currentY == centerY) {
-            //         return { x: centerX, y: centerY };
-            //     }
-            // }
 
             function CubeScale(coordinate, factor) {
                 return {
