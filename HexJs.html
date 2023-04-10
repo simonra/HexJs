@@ -36,7 +36,7 @@
         }
 
         .tileConnectionArrow {
-            clip-path: polygon(0 40%, 60% 40%, 60% 20%, 100% 50%, 60% 80%, 60% 60%, 0 60%);
+            clip-path: polygon(0 40%, 60% 40%, 60% 20%, 100% 50%, 60% 80%, 60% 60%, 0 60%); /* Somewhat thin */
         }
     </style>
     <script>
@@ -44,6 +44,7 @@
         const sizeX = 10;
         const sizeY = 10;
         const sqrt3 = 1.7320508075688772;
+        const radToDeg = 57.29577951308232; // 360/(2*Math.PI), multiply by this to go from rad to deg
 
         // Global computed values
         var spiralCoordinatesList = [];
@@ -130,6 +131,15 @@
         }
 
         function MakeSpiralArrows() {
+            function GetAngle(firstVec2, secondVec2) {
+                var magnitudeFirst = Math.sqrt(Math.pow(firstVec2.x,2) + Math.pow(firstVec2.y));
+                var magnitudeSecond = Math.sqrt(Math.pow(secondVec2.x,2) + Math.pow(secondVec2.y));
+                var dotProduct = firstVec2.x * secondVec2.x + firstVec2.y * secondVec2.y;
+                var angleRadians = Math.acos(dotProduct/(magnitudeFirst*magnitudeSecond));
+                var angleDegrees = angleRadians * radToDeg;
+                return angleDegrees;
+            }
+
             function CalculateArrowPosition(currentTile, nextTile) {
                 /* ToDo:
                  *  - Get center of previous
@@ -139,10 +149,48 @@
                  */
 
                 // The below needs the element to be supplied, consider passing object with only the relevant properties instead, this does not seem to be the place to do everything (fetching elements...)
-                var currentTileContainerLeftPosition = currentTile.offsetLeft; // px, rounded
-                var currentTileContainerTopPosition = currentTile.offsetTop; // px, rounded
-                var currentTileContainerSizeWidth = currentTile.offsetWidth; // px, rounded
-                var currentTileContainerSizeHeight = currentTile.offsetHeight; // px, rounded
+                // var currentTileContainerLeftPosition = currentTile.offsetLeft; // px, rounded
+                // var currentTileContainerTopPosition = currentTile.offsetTop; // px, rounded
+                // var currentTileContainerSizeWidth = currentTile.offsetWidth; // px, rounded
+                // var currentTileContainerSizeHeight = currentTile.offsetHeight; // px, rounded
+
+                var currentTilePositionData = GetPositionMetaData(currentTile);
+                var nextTilePositionData = GetPositionMetaData(nextTile);
+                // start by making it radius/2 long (half the way to the middle on either side, a bit shorter with padding)
+                var arrowCenter = {
+                    x: Math.floor((currentTilePositionData.centerCoordinate.x + nextTilePositionData.centerCoordinate.x)/2),
+                    y: Math.floor((currentTilePositionData.centerCoordinate.y + nextTilePositionData.centerCoordinate.y)/2)
+                };
+                // var arrowDirection = {
+                //     x: Math.floor(nextTilePositionData.centerCoordinate.x - currentTilePositionData.centerCoordinate.x),
+                //     y: Math.floor(nextTilePositionData.centerCoordinate.y - currentTilePositionData.centerCoordinate.y)
+                // };
+                var arrowAngle = GetAngle({x: currentTilePositionData.centerCoordinate.x, y: currentTilePositionData.centerCoordinate.y}, {x: nextTilePositionData.centerCoordinate.x, y: nextTilePositionData.centerCoordinate.y});
+
+                var arrowOffsetLeft = Math.floor(arrowCenter.x - hexRadiusSize / 2);
+                var arrowOffsetTop = Math.floor(arrowCenter.y - hexRadiusSize / 2);;
+
+                return {
+                    center: arrowCenter,
+                    angle: arrowAngle,
+                    offsetLeft: arrowOffsetLeft,
+                    offsetTop: arrowOffsetTop
+                };
+            }
+
+            function GetPositionMetaData(cubeCoordinate) {
+                var tileElement = document.getElementById(`q${cubeCoordinate.q}r${cubeCoordinate.r}s${cubeCoordinate.s}`);
+                var centerCoordinate = {
+                    x: Math.floor(tileElement.offsetLeft + tileElement.offsetWidth / 2),
+                    y: Math.floor(tileElement.offsetTop + tileElement.offsetHeight / 2)
+                };
+                return {
+                    offsetLeft: tileElement.offsetLeft, // Pixel value for leftmost side of element/how far from left
+                    offsetTop: tileElement.offsetTop, // Pixel value for topmost side of element/how far from top
+                    width: tileElement.offsetWidth, // Number of pixels the element is wide
+                    height: tileElement.offsetHeight, // Number of pixels the element is tall
+                    center: centerCoordinate
+                };
             }
 
             var GridContainer = document.getElementById("GridContainer");
@@ -158,7 +206,7 @@
                 nextArrow.dataset.type = "arrow"
                 nextArrow.classList.add("tileConnectionArrow");
                 var arrowPosition = CalculateArrowPosition(spiralCoordinatesList[i], spiralCoordinatesList[i+1]);
-                // ToDo: add position to arrot
+                // ToDo: add position to arrow
                 // ToDo: Figure out rotation. Probably has to be to add some css rotation property we can calculate here?
                 GridContainer.appendChild(nextArrow);
             }
