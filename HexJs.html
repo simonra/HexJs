@@ -334,16 +334,6 @@
                         // var nextIndex = (i + (nextRing.length - 1)) % nextRing.length;
                         tilePositions.push(nextRing[nextIndex]);
                     }
-                    // for (var i = 0; i < k; i++) {
-                    //     var lastElement = nextRing.pop();
-                    //     nextRing.unshift(lastElement);
-                    //     console.log("we do the shift!");
-                    //     // For the spiral to have the effect of "having moved out of the square where the last circle revolution ended",
-                    //     // rotate the next ring so that the n'th last element becomes the first,
-                    //     // starting with 0 shift for the first ring of radius 1.
-                    //     // nextRing.unshift(nextRing.pop());
-                    // }
-                    // tilePositions = tilePositions.concat(nextRing);
                 }
 
                 return tilePositions;
