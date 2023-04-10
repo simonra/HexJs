@@ -34,12 +34,20 @@
         .OddColumn {
             background-color: coral;
         }
+
+        .tileConnectionArrow {
+            clip-path: polygon(0 40%, 60% 40%, 60% 20%, 100% 50%, 60% 80%, 60% 60%, 0 60%);
+        }
     </style>
     <script>
         // Global constants
         const sizeX = 10;
         const sizeY = 10;
         const sqrt3 = 1.7320508075688772;
+
+        // Global computed values
+        var spiralCoordinatesList = [];
+        var hexRadiusSize = 0;
 
         window.addEventListener('load', function() {
             MakeGrid(sizeX,sizeY);
@@ -65,6 +73,8 @@
                     nextTile.dataset.cubecoordinateR = cubecoords.r;
                     nextTile.dataset.cubecoordinateS = cubecoords.s;
 
+                    nextTile.id = `q${cubecoords.q}r${cubecoords.r}s${cubecoords.s}`;
+
                     // Comment out the display here when no longer needed for visual debugging
                     nextTile.appendChild(document.createElement("br"));
                     nextTile.appendChild(document.createTextNode(`GC:`));
@@ -85,26 +95,73 @@
             var centerTileCubeCoords = HexLib.CoordinateSystemConvertion.GetCubeCoordinates({row: centerTile.y, column: centerTile.x});
             var spiralCoords = HexLib.HexSpiralUtilities.SmoothCubeSpiral(centerTileCubeCoords, 4);
 
-            tiles.forEach(tile => {
-                tileCubeCoordinate = {
-                    q: tile.dataset.cubecoordinateQ,
-                    r: tile.dataset.cubecoordinateR,
-                    s: tile.dataset.cubecoordinateS
-                };
-                for (let i = 0; i < spiralCoords.length; i++) {
-                    // const element = array[i];
-                    if(HexLib.CubeCoordinateUtilities.CubeEqual(spiralCoords[i], tileCubeCoordinate)) {
-                        tile.dataset.spiralIndex = i;
+            for (let i = 0; i < spiralCoords.length; i++) {
+                spiralCoordinatesList.push(spiralCoords[i]);
+                var tile = document.getElementById(`q${spiralCoords[i].q}r${spiralCoords[i].r}s${spiralCoords[i].s}`);
+                tile.dataset.spiralIndex = i;
+                // Comment out the display here when no longer needed for visual debugging
+                tile.appendChild(document.createElement("br"));
+                tile.appendChild(document.createTextNode(`SI:`));
+                tile.appendChild(document.createTextNode(`[${i}]`));
+            }
 
-                        // Comment out the display here when no longer needed for visual debugging
-                        tile.appendChild(document.createElement("br"));
-                        tile.appendChild(document.createTextNode(`SI:`));
-                        tile.appendChild(document.createTextNode(`[${i}]`));
+            // spiralCoords.forEach(sc => { spiralCoordinatesList.push(sc) });
 
-                        break;
-                    }
-                }
-            });
+            // tiles.forEach(tile => {
+            //     tileCubeCoordinate = {
+            //         q: tile.dataset.cubecoordinateQ,
+            //         r: tile.dataset.cubecoordinateR,
+            //         s: tile.dataset.cubecoordinateS
+            //     };
+            //     for (let i = 0; i < spiralCoords.length; i++) {
+            //         // const element = array[i];
+            //         if(HexLib.CubeCoordinateUtilities.CubeEqual(spiralCoords[i], tileCubeCoordinate)) {
+            //             tile.dataset.spiralIndex = i;
+
+            //             // Comment out the display here when no longer needed for visual debugging
+            //             tile.appendChild(document.createElement("br"));
+            //             tile.appendChild(document.createTextNode(`SI:`));
+            //             tile.appendChild(document.createTextNode(`[${i}]`));
+
+            //             break;
+            //         }
+            //     }
+            // });
+        }
+
+        function MakeSpiralArrows() {
+            function CalculateArrowPosition(currentTile, nextTile) {
+                /* ToDo:
+                 *  - Get center of previous
+                 *  - Get center of next
+                 *  - Get border
+                 *  - Figure out what to do with it all
+                 */
+
+                // The below needs the element to be supplied, consider passing object with only the relevant properties instead, this does not seem to be the place to do everything (fetching elements...)
+                var currentTileContainerLeftPosition = currentTile.offsetLeft; // px, rounded
+                var currentTileContainerTopPosition = currentTile.offsetTop; // px, rounded
+                var currentTileContainerSizeWidth = currentTile.offsetWidth; // px, rounded
+                var currentTileContainerSizeHeight = currentTile.offsetHeight; // px, rounded
+            }
+
+            var GridContainer = document.getElementById("GridContainer");
+            // var tiles = [];
+            // for(let node of GridContainer.childNodes) {
+            //     if(node.dataset.type == "tile") {
+            //         tiles.push(node);
+            //     }
+            // }
+            // var tiles = GridContainer.childNodes.filter(n => { return n.dataset.type == "tile"; } );
+            for (let i = 0; i < spiralCoordinatesList.length - 1; i++) {
+                var nextArrow = document.createElement("div");
+                nextArrow.dataset.type = "arrow"
+                nextArrow.classList.add("tileConnectionArrow");
+                var arrowPosition = CalculateArrowPosition(spiralCoordinatesList[i], spiralCoordinatesList[i+1]);
+                // ToDo: add position to arrot
+                // ToDo: Figure out rotation. Probably has to be to add some css rotation property we can calculate here?
+                GridContainer.appendChild(nextArrow);
+            }
         }
 
         PositioningLib = function() {
@@ -140,8 +197,9 @@
                 // var maxByHeight = Math.floor(maxDiameterGivenHeight);
                 var maxRadiusGivenHeight = maxDiameterGivenHeight/2;
                 var maxByHeight = Math.floor(maxRadiusGivenHeight);
-
-                return Math.min(maxByWidth, maxByHeight);
+                var result = Math.min(maxByWidth, maxByHeight);
+                hexRadiusSize = result;
+                return result;
             }
 
             function SizeContainer(tileSize) {
@@ -169,7 +227,11 @@
                 var tileCssWidth = `${tileSize * sqrt3}px`
                 var tileCssHeight = `${tileSize * 2}px`
 
-                tiles.forEach(tile => {
+                for(let tile of tiles) {
+                    // Because filter doesn't work on the NodeList type, here is a for of loop with continure instead
+                    if(tile.dataset.type != "tile") {
+                        continue;
+                    }
                     if(tile.dataset.spiralIndex >= 0) {
                         tile.classList.add("SpiralMember");
                     }
@@ -208,7 +270,7 @@
                     } else {
                         tile.classList.add('OddColumn');
                     }
-                });
+                };
 
             }
 
