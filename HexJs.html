@@ -59,7 +59,7 @@
 
                     var coordinate = { column: x, row: y };
 
-                    cubecoords = HexCoordinateSystemConvertionUtilities.GetCubeCoordinates(coordinate)
+                    cubecoords = HexLib.CoordinateSystemConvertion.GetCubeCoordinates(coordinate)
 
                     nextTile.dataset.cubecoordinateQ = cubecoords.q;
                     nextTile.dataset.cubecoordinateR = cubecoords.r;
@@ -81,9 +81,9 @@
 
         function PopulateSpiralCoordinates() {
             var tiles = document.getElementById("GridContainer").childNodes;
-            var centerTile = HexSpiralUtilities.GetCenterTile(sizeX, sizeY);
-            var centerTileCubeCoords = HexCoordinateSystemConvertionUtilities.GetCubeCoordinates({row: centerTile.y, column: centerTile.x});
-            var spiralCoords = HexSpiralUtilities.SmoothCubeSpiral(centerTileCubeCoords, 4);
+            var centerTile = HexLib.HexSpiralUtilities.GetCenterTile(sizeX, sizeY);
+            var centerTileCubeCoords = HexLib.CoordinateSystemConvertion.GetCubeCoordinates({row: centerTile.y, column: centerTile.x});
+            var spiralCoords = HexLib.HexSpiralUtilities.SmoothCubeSpiral(centerTileCubeCoords, 4);
 
             tiles.forEach(tile => {
                 tileCubeCoordinate = {
@@ -93,7 +93,7 @@
                 };
                 for (let i = 0; i < spiralCoords.length; i++) {
                     // const element = array[i];
-                    if(HexCubeCoordUtilities.CubeEqual(spiralCoords[i], tileCubeCoordinate)) {
+                    if(HexLib.CubeCoordinateUtilities.CubeEqual(spiralCoords[i], tileCubeCoordinate)) {
                         tile.dataset.spiralIndex = i;
 
                         // Comment out the display here when no longer needed for visual debugging
@@ -217,237 +217,246 @@
             }
         }();
 
-        HexCoordinateSystemConvertionUtilities = function() {
-            function GetCubeCoordinates(coordinate) {
-                var offset = -1; // odd = -1, even = + 1
-                var q = coordinate.column - (coordinate.row + offset * (coordinate.row & 1)) / 2;
-                var r = coordinate.row;
-                var s = -q - r;
-                return { q: q , r: r, s: s };
-            }
+        HexLib = function() {
+            CoordinateSystemConvertion = function() {
+                function GetCubeCoordinates(coordinate) {
+                    var offset = -1; // odd = -1, even = + 1
+                    var q = coordinate.column - (coordinate.row + offset * (coordinate.row & 1)) / 2;
+                    var r = coordinate.row;
+                    var s = -q - r;
+                    return { q: q , r: r, s: s };
+                }
 
-            function GetGridOffsetCoordinates(coordinate)
-            {
-                var offset = -1; // odd = -1, even = + 1
-                var column = coordinate.q + (coordinate.r + offset * (coordinate.r & 1)) / 2;
-                var row = coordinate.r;
-                return { x: column, y: row };
-            }
+                function GetGridOffsetCoordinates(coordinate)
+                {
+                    var offset = -1; // odd = -1, even = + 1
+                    var column = coordinate.q + (coordinate.r + offset * (coordinate.r & 1)) / 2;
+                    var row = coordinate.r;
+                    return { x: column, y: row };
+                }
 
-            return {
-                GetCubeCoordinates:GetCubeCoordinates,
-                GetGridOffsetCoordinates:GetGridOffsetCoordinates
-            }
-        }();
-
-        HexCubeCoordUtilities = function() {
-            var CubeDirectionVectors = [
-                { q: +1, r:  0, s: -1 }, // right (straight) when pointy end up
-                { q: +1, r: -1, s:  0 }, // up and right when pointy end up
-                { q:  0, r: -1, s: +1 }, // up and left when pointy end up
-                { q: -1, r:  0, s: +1 }, // left (straight) when pointy end up
-                { q: -1, r: +1, s:  0 }, // down and left when pointy end up
-                { q:  0, r: +1, s: -1 }, // down and right when pointy end up
-            ];
-
-            function CubeDirection(directionIndex) {
-                return CubeDirectionVectors[directionIndex];
-            }
-
-            function CubeAdd(coordinate, vector) {
                 return {
-                    q: coordinate.q + vector.q,
-                    r: coordinate.r + vector.r,
-                    s: coordinate.s + vector.s
-                };
-            }
-
-            function CubeNeighbor(cube, direction) {
-                return CubeAdd(cube, CubeDirection(direction));
-            }
-
-            function CubeEqual(first, second) {
-                return first.q == second.q && first.r == second.r && first.s == second.s;
-            }
-
-            return {
-                CubeDirectionVectors:CubeDirectionVectors,
-                CubeDirection:CubeDirection,
-                CubeAdd:CubeAdd,
-                CubeNeighbor:CubeNeighbor,
-                CubeEqual:CubeEqual
-            }
-        }();
-
-        HexSpiralUtilities = function () {
-            function GetCenterTile(gridSizeX_zeroIndexed, gridSizeY_zeroIndexed) {
-                var xCenter = Math.floor(gridSizeX_zeroIndexed/2);
-                var yCenter = Math.floor(gridSizeY_zeroIndexed/2) - 1;
-                return { x: xCenter, y: yCenter };
-            }
-
-            function CubeScale(coordinate, factor) {
-                return {
-                    q: coordinate.q * factor,
-                    r: coordinate.r * factor,
-                    s: coordinate.s * factor
-                };
-            }
-
-            function CubeRing(centerCoord, radius) {
-                var tilePositions = [];
-                var startingDirectionIndex = 0;
-                var tile = HexCubeCoordUtilities.CubeAdd(
-                    centerCoord, CubeScale(HexCubeCoordUtilities.CubeDirection(startingDirectionIndex), radius)
-                );
-                for (let i = startingDirectionIndex; i < 6 + startingDirectionIndex; i++) {
-                    for (let j = 0; j < radius; j++) {
-                        tilePositions.push(tile);
-                        tile = HexCubeCoordUtilities.CubeNeighbor(tile, ((i + 2) % 6));
-                    }
+                    GetCubeCoordinates:GetCubeCoordinates,
+                    GetGridOffsetCoordinates:GetGridOffsetCoordinates
                 }
+            }();
 
-                return tilePositions;
-            }
-
-            function CubeSpiral(centerCoord, radius) {
-                var tilePositions = [];
-                tilePositions.push(centerCoord);
-                for (let k = 0; k <= radius; k++) {
-                    tilePositions.push(CubeRing(centerCoord, k))
-                }
-                return tilePositions;
-            }
-
-            function SmoothCubeSpiral(centerCoord, radius) {
-                var tilePositions = [];
-                tilePositions.push(centerCoord);
-                for (var k = 1; k <= radius; k++) {
-                    var nextRing = CubeRing(centerCoord, k);
-                    // debugger;
-                    for (let i = 0; i < nextRing.length; i++) {
-                        // Rotate the array 1 position further for each ring we go out.
-                        // So for the first ring outside the center, do nothing, start at the start.
-                        // Then for the second ring, make the list go [last item, first item, second item, ... second to last item].
-                        // For the third ring, make it [second to last item, last item, first item, second item, ... third last item].
-                        // And so on.
-                        var nextIndex = (i + (nextRing.length - k + 1)) % nextRing.length;
-                        // var nextIndex = (i + (nextRing.length - 1)) % nextRing.length;
-                        tilePositions.push(nextRing[nextIndex]);
-                    }
-                }
-
-                return tilePositions;
-            }
-
-            return {
-                GetCenterTile:GetCenterTile,
-                CubeScale:CubeScale,
-                CubeRing:CubeRing,
-                CubeSpiral:CubeSpiral,
-                SmoothCubeSpiral:SmoothCubeSpiral
-            }
-        }();
-
-        HexTests = function() {
-            function TestSmoothSpiral() {
-                console.log("Beginning testing of smooth spiral generation");
-                // var originPoint =  {q: 0, r: 0, s: 0};
-                // var firstRing = HexSpiralUtilities.CubeRing(originPoint, 1);
-                // var secondRing = HexSpiralUtilities.CubeRing(originPoint, 2);
-                var expectedList = [
-                    // Origin
-                    { q: 0, r: 0, s: 0 },
-                    // First ring, no offset
-                    { q: 1, r: 0, s: -1 }, // first element
-                    { q: 1, r: -1, s: 0 },
-                    { q: 0, r: -1, s: 1 },
-                    { q: -1, r: 0, s: 1 },
-                    { q: -1, r: 1, s: 0 },
-                    { q: 0, r: 1, s: -1 }, // last element
-                    // Second ring
-                    { q: 1, r: 1, s: -2 }, // last element moved to top
-                    { q: 2, r: 0, s: -2 }, // first element
-                    { q: 2, r: -1, s: -1 },
-                    { q: 2, r: -2, s: 0 },
-                    { q: 1, r: -2, s: 1 },
-                    { q: 0, r: -2, s: 2 },
-                    { q: -1, r: -1, s: 2 },
-                    { q: -2, r: 0, s: 2 },
-                    { q: -2, r: 1, s: 1 },
-                    { q: -2, r: 2, s: 0 },
-                    { q: -1, r: 2, s: -1 },
-                    { q: 0, r: 2, s: -2 }, // second last element
-                    // Third ring
-                    { q: 1, r: 2, s: -3 }, // second last element
-                    { q: 2, r: 1, s: -3 }, // last element
-                    { q: 3, r: 0, s: -3 }, // first element
-                    { q: 3, r: -1, s: -2 },
-                    { q: 3, r: -2, s: -1 },
-                    { q: 3, r: -3, s: 0 },
-                    { q: 2, r: -3, s: 1 },
-                    { q: 1, r: -3, s: 2 },
-                    { q: 0, r: -3, s: 3 },
-                    { q: -1, r: -2, s: 3 },
-                    { q: -2, r: -1, s: 3 },
-                    { q: -3, r: 0, s: 3 },
-                    { q: -3, r: 1, s: 2 },
-                    { q: -3, r: 2, s: 1 },
-                    { q: -3, r: 3, s: 0 },
-                    { q: -2, r: 3, s: -1 },
-                    { q: -1, r: 3, s: -2 },
-                    { q: 0, r: 3, s: -3 }, // third last element
-                    // Fourth ring
-                    { q: 1, r: 3, s: -4 }, // third last element
-                    { q: 2, r: 2, s: -4 }, // second last element
-                    { q: 3, r: 1, s: -4 }, // last element
-                    { q: 4, r: 0, s: -4 }, // first element
-                    { q: 4, r: -1, s: -3 },
-                    { q: 4, r: -2, s: -2 },
-                    { q: 4, r: -3, s: -1 },
-                    { q: 4, r: -4, s: 0 },
-                    { q: 3, r: -4, s: 1 },
-                    { q: 2, r: -4, s: 2 },
-                    { q: 1, r: -4, s: 3 },
-                    { q: 0, r: -4, s: 4 },
-                    { q: -1, r: -3, s: 4 },
-                    { q: -2, r: -2, s: 4 },
-                    { q: -3, r: -1, s: 4 },
-                    { q: -4, r: 0, s: 4 },
-                    { q: -4, r: 1, s: 3 },
-                    { q: -4, r: 2, s: 2 },
-                    { q: -4, r: 3, s: 1 },
-                    { q: -4, r: 4, s: 0 },
-                    { q: -3, r: 4, s: -1 },
-                    { q: -2, r: 4, s: -2 },
-                    { q: -1, r: 4, s: -3 },
-                    { q: 0, r: 4, s: -4 }, // fourth last element
+            CubeCoordinateUtilities = function() {
+                var CubeDirectionVectors = [
+                    { q: +1, r:  0, s: -1 }, // right (straight) when pointy end up
+                    { q: +1, r: -1, s:  0 }, // up and right when pointy end up
+                    { q:  0, r: -1, s: +1 }, // up and left when pointy end up
+                    { q: -1, r:  0, s: +1 }, // left (straight) when pointy end up
+                    { q: -1, r: +1, s:  0 }, // down and left when pointy end up
+                    { q:  0, r: +1, s: -1 }, // down and right when pointy end up
                 ];
 
-                // Act
-                var radius = 4;
-                var originPoint =  {q: 0, r: 0, s: 0};
-                var actual = HexSpiralUtilities.SmoothCubeSpiral(originPoint, radius);
-
-                // Assert
-                console.assert(actual.length == expectedList.length, "Resulting list of tiles did not contain expected number of entries.");
-
-                // Make it easier to tweak the radius number above to see if anything changes with more or less circles
-                var numberOfItemsToTest = Math.min(expectedList.length, actual.length);
-
-                for (let i = 0; i < numberOfItemsToTest; i++) {
-                    var nextItemIsEqual = expectedList[i].q == actual[i].q
-                        && expectedList[i].r == actual[i].r
-                        && expectedList[i].s == actual[i].s
-                        ;
-                    console.assert(nextItemIsEqual, `Items at position ${i} did not match.`, { expected: expectedList[i], actual: actual[i]});
+                function CubeDirection(directionIndex) {
+                    return CubeDirectionVectors[directionIndex];
                 }
 
-                console.log("Done testing smooth spiral generation");
-            }
+                function CubeAdd(coordinate, vector) {
+                    return {
+                        q: coordinate.q + vector.q,
+                        r: coordinate.r + vector.r,
+                        s: coordinate.s + vector.s
+                    };
+                }
+
+                function CubeNeighbor(cube, direction) {
+                    return CubeAdd(cube, CubeDirection(direction));
+                }
+
+                function CubeEqual(first, second) {
+                    return first.q == second.q && first.r == second.r && first.s == second.s;
+                }
+
+                return {
+                    CubeDirectionVectors:CubeDirectionVectors,
+                    CubeDirection:CubeDirection,
+                    CubeAdd:CubeAdd,
+                    CubeNeighbor:CubeNeighbor,
+                    CubeEqual:CubeEqual
+                }
+            }();
+
+            HexSpiralUtilities = function () {
+                function GetCenterTile(gridSizeX_zeroIndexed, gridSizeY_zeroIndexed) {
+                    var xCenter = Math.floor(gridSizeX_zeroIndexed/2);
+                    var yCenter = Math.floor(gridSizeY_zeroIndexed/2) - 1;
+                    return { x: xCenter, y: yCenter };
+                }
+
+                function CubeScale(coordinate, factor) {
+                    return {
+                        q: coordinate.q * factor,
+                        r: coordinate.r * factor,
+                        s: coordinate.s * factor
+                    };
+                }
+
+                function CubeRing(centerCoord, radius) {
+                    var tilePositions = [];
+                    var startingDirectionIndex = 0;
+                    var tile = CubeCoordinateUtilities.CubeAdd(
+                        centerCoord, CubeScale(CubeCoordinateUtilities.CubeDirection(startingDirectionIndex), radius)
+                    );
+                    for (let i = startingDirectionIndex; i < 6 + startingDirectionIndex; i++) {
+                        for (let j = 0; j < radius; j++) {
+                            tilePositions.push(tile);
+                            tile = CubeCoordinateUtilities.CubeNeighbor(tile, ((i + 2) % 6));
+                        }
+                    }
+
+                    return tilePositions;
+                }
+
+                function CubeSpiral(centerCoord, radius) {
+                    var tilePositions = [];
+                    tilePositions.push(centerCoord);
+                    for (let k = 0; k <= radius; k++) {
+                        tilePositions.push(CubeRing(centerCoord, k))
+                    }
+                    return tilePositions;
+                }
+
+                function SmoothCubeSpiral(centerCoord, radius) {
+                    var tilePositions = [];
+                    tilePositions.push(centerCoord);
+                    for (var k = 1; k <= radius; k++) {
+                        var nextRing = CubeRing(centerCoord, k);
+                        // debugger;
+                        for (let i = 0; i < nextRing.length; i++) {
+                            // Rotate the array 1 position further for each ring we go out.
+                            // So for the first ring outside the center, do nothing, start at the start.
+                            // Then for the second ring, make the list go [last item, first item, second item, ... second to last item].
+                            // For the third ring, make it [second to last item, last item, first item, second item, ... third last item].
+                            // And so on.
+                            var nextIndex = (i + (nextRing.length - k + 1)) % nextRing.length;
+                            // var nextIndex = (i + (nextRing.length - 1)) % nextRing.length;
+                            tilePositions.push(nextRing[nextIndex]);
+                        }
+                    }
+
+                    return tilePositions;
+                }
+
+                return {
+                    GetCenterTile:GetCenterTile,
+                    CubeScale:CubeScale,
+                    CubeRing:CubeRing,
+                    CubeSpiral:CubeSpiral,
+                    SmoothCubeSpiral:SmoothCubeSpiral
+                }
+            }();
+
+            HexTests = function() {
+                function TestSmoothSpiral() {
+                    console.log("Beginning testing of smooth spiral generation");
+                    // var originPoint =  {q: 0, r: 0, s: 0};
+                    // var firstRing = HexSpiralUtilities.CubeRing(originPoint, 1);
+                    // var secondRing = HexSpiralUtilities.CubeRing(originPoint, 2);
+                    var expectedList = [
+                        // Origin
+                        { q: 0, r: 0, s: 0 },
+                        // First ring, no offset
+                        { q: 1, r: 0, s: -1 }, // first element
+                        { q: 1, r: -1, s: 0 },
+                        { q: 0, r: -1, s: 1 },
+                        { q: -1, r: 0, s: 1 },
+                        { q: -1, r: 1, s: 0 },
+                        { q: 0, r: 1, s: -1 }, // last element
+                        // Second ring
+                        { q: 1, r: 1, s: -2 }, // last element moved to top
+                        { q: 2, r: 0, s: -2 }, // first element
+                        { q: 2, r: -1, s: -1 },
+                        { q: 2, r: -2, s: 0 },
+                        { q: 1, r: -2, s: 1 },
+                        { q: 0, r: -2, s: 2 },
+                        { q: -1, r: -1, s: 2 },
+                        { q: -2, r: 0, s: 2 },
+                        { q: -2, r: 1, s: 1 },
+                        { q: -2, r: 2, s: 0 },
+                        { q: -1, r: 2, s: -1 },
+                        { q: 0, r: 2, s: -2 }, // second last element
+                        // Third ring
+                        { q: 1, r: 2, s: -3 }, // second last element
+                        { q: 2, r: 1, s: -3 }, // last element
+                        { q: 3, r: 0, s: -3 }, // first element
+                        { q: 3, r: -1, s: -2 },
+                        { q: 3, r: -2, s: -1 },
+                        { q: 3, r: -3, s: 0 },
+                        { q: 2, r: -3, s: 1 },
+                        { q: 1, r: -3, s: 2 },
+                        { q: 0, r: -3, s: 3 },
+                        { q: -1, r: -2, s: 3 },
+                        { q: -2, r: -1, s: 3 },
+                        { q: -3, r: 0, s: 3 },
+                        { q: -3, r: 1, s: 2 },
+                        { q: -3, r: 2, s: 1 },
+                        { q: -3, r: 3, s: 0 },
+                        { q: -2, r: 3, s: -1 },
+                        { q: -1, r: 3, s: -2 },
+                        { q: 0, r: 3, s: -3 }, // third last element
+                        // Fourth ring
+                        { q: 1, r: 3, s: -4 }, // third last element
+                        { q: 2, r: 2, s: -4 }, // second last element
+                        { q: 3, r: 1, s: -4 }, // last element
+                        { q: 4, r: 0, s: -4 }, // first element
+                        { q: 4, r: -1, s: -3 },
+                        { q: 4, r: -2, s: -2 },
+                        { q: 4, r: -3, s: -1 },
+                        { q: 4, r: -4, s: 0 },
+                        { q: 3, r: -4, s: 1 },
+                        { q: 2, r: -4, s: 2 },
+                        { q: 1, r: -4, s: 3 },
+                        { q: 0, r: -4, s: 4 },
+                        { q: -1, r: -3, s: 4 },
+                        { q: -2, r: -2, s: 4 },
+                        { q: -3, r: -1, s: 4 },
+                        { q: -4, r: 0, s: 4 },
+                        { q: -4, r: 1, s: 3 },
+                        { q: -4, r: 2, s: 2 },
+                        { q: -4, r: 3, s: 1 },
+                        { q: -4, r: 4, s: 0 },
+                        { q: -3, r: 4, s: -1 },
+                        { q: -2, r: 4, s: -2 },
+                        { q: -1, r: 4, s: -3 },
+                        { q: 0, r: 4, s: -4 }, // fourth last element
+                    ];
+
+                    // Act
+                    var radius = 4;
+                    var originPoint =  {q: 0, r: 0, s: 0};
+                    var actual = HexSpiralUtilities.SmoothCubeSpiral(originPoint, radius);
+
+                    // Assert
+                    console.assert(actual.length == expectedList.length, "Resulting list of tiles did not contain expected number of entries.");
+
+                    // Make it easier to tweak the radius number above to see if anything changes with more or less circles
+                    var numberOfItemsToTest = Math.min(expectedList.length, actual.length);
+
+                    for (let i = 0; i < numberOfItemsToTest; i++) {
+                        var nextItemIsEqual = expectedList[i].q == actual[i].q
+                            && expectedList[i].r == actual[i].r
+                            && expectedList[i].s == actual[i].s
+                            ;
+                        console.assert(nextItemIsEqual, `Items at position ${i} did not match.`, { expected: expectedList[i], actual: actual[i]});
+                    }
+
+                    console.log("Done testing smooth spiral generation");
+                }
+
+                return {
+                    TestSmoothSpiral:TestSmoothSpiral
+                }
+            }();
 
             return {
-                TestSmoothSpiral:TestSmoothSpiral
+                CoordinateSystemConvertion:CoordinateSystemConvertion,
+                CubeCoordinateUtilities:CubeCoordinateUtilities,
+                HexSpiralUtilities:HexSpiralUtilities,
+                HexTests:HexTests
             }
         }();
 
