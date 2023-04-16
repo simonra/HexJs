@@ -231,31 +231,22 @@
             }
 
             var GridContainer = document.getElementById("GridContainer");
-            // var tiles = [];
-            // for(let node of GridContainer.childNodes) {
-            //     if(node.dataset.type == "tile") {
-            //         tiles.push(node);
-            //     }
-            // }
-            // var tiles = GridContainer.childNodes.filter(n => { return n.dataset.type == "tile"; } );
+
             // debugger;
             for (let i = 0; i < spiralCoordinatesList.length - 1; i++) {
                 var nextArrow = document.createElement("div");
                 nextArrow.dataset.type = "arrow"
+
                 nextArrow.dataset.sourceTile_coordinate_q = spiralCoordinatesList[i].q;
                 nextArrow.dataset.sourceTile_coordinate_r = spiralCoordinatesList[i].r;
                 nextArrow.dataset.sourceTile_coordinate_s = spiralCoordinatesList[i].s;
                 nextArrow.dataset.destinationTile_coordinate_q = spiralCoordinatesList[i+1].q;
                 nextArrow.dataset.destinationTile_coordinate_r = spiralCoordinatesList[i+1].r;
                 nextArrow.dataset.destinationTile_coordinate_s = spiralCoordinatesList[i+1].s;
+
                 nextArrow.classList.add("tileConnectionArrow");
                 var arrowPosition = CalculateArrowPosition(spiralCoordinatesList[i], spiralCoordinatesList[i+1]);
-                // ToDo: add position to arrow
-                // ToDo: Figure out rotation. Probably has to be to add some css rotation property we can calculate here?
-                // nextArrow.style.minWidth = `${arrowPosition.width}px`;
-                // nextArrow.style.minHeight = `${arrowPosition.height}px`;
-                // nextArrow.style.maxWidth = `${arrowPosition.width}px`;
-                // nextArrow.style.maxHeight = `${arrowPosition.height}px`;
+
                 nextArrow.style.width = `${arrowPosition.width}px`;
                 nextArrow.style.height = `${arrowPosition.height}px`;
                 nextArrow.style.left = `${arrowPosition.offsetLeft}px`;
