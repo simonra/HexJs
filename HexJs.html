@@ -235,6 +235,7 @@
             // debugger;
             for (let i = 0; i < spiralCoordinatesList.length - 1; i++) {
                 var nextArrow = document.createElement("div");
+                nextArrow.id = `tile-arrow-${i}`;
                 nextArrow.dataset.type = "arrow"
 
                 nextArrow.dataset.sourceTile_coordinate_q = spiralCoordinatesList[i].q;
@@ -252,7 +253,9 @@
                 nextArrow.style.left = `${arrowPosition.offsetLeft}px`;
                 nextArrow.style.top = `${arrowPosition.offsetTop}px`;
                 nextArrow.style.transform = `rotate(-${arrowPosition.angle}deg)`;
+
                 // nextArrow.appendChild(document.createTextNode(`i: ${i}`));
+
                 GridContainer.appendChild(nextArrow);
             }
         }
