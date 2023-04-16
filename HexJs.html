@@ -237,6 +237,12 @@
             for (let i = 0; i < spiralCoordinatesList.length - 1; i++) {
                 var nextArrow = document.createElement("div");
                 nextArrow.dataset.type = "arrow"
+                nextArrow.dataset.sourceTile_coordinate_q = spiralCoordinatesList[i].q;
+                nextArrow.dataset.sourceTile_coordinate_r = spiralCoordinatesList[i].r;
+                nextArrow.dataset.sourceTile_coordinate_s = spiralCoordinatesList[i].s;
+                nextArrow.dataset.destinationTile_coordinate_q = spiralCoordinatesList[i+1].q;
+                nextArrow.dataset.destinationTile_coordinate_r = spiralCoordinatesList[i+1].r;
+                nextArrow.dataset.destinationTile_coordinate_s = spiralCoordinatesList[i+1].s;
                 nextArrow.classList.add("tileConnectionArrow");
                 var arrowPosition = CalculateArrowPosition(spiralCoordinatesList[i], spiralCoordinatesList[i+1]);
                 // ToDo: add position to arrow
