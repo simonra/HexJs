@@ -195,16 +195,18 @@
                 // };
                 var arrowAngle = GetAngle({x: currentTilePositionData.center.x, y: currentTilePositionData.center.y}, {x: nextTilePositionData.center.x, y: nextTilePositionData.center.y});
 
-                var arrowOffsetLeft = Math.floor(arrowCenter.x - hexRadiusSize / 2);
-                var arrowOffsetTop = Math.floor(arrowCenter.y - hexRadiusSize / 2);;
+                var arrowLength = hexRadiusSize / 2;
+
+                var arrowOffsetLeft = Math.floor(arrowCenter.x - arrowLength/2);
+                var arrowOffsetTop = Math.floor(arrowCenter.y - arrowLength/2);;
 
                 return {
                     center: arrowCenter,
                     angle: arrowAngle,
                     offsetLeft: arrowOffsetLeft,
                     offsetTop: arrowOffsetTop,
-                    width: (hexRadiusSize / 2),
-                    height: (hexRadiusSize / 2)
+                    width: (arrowLength),
+                    height: (arrowLength)
                 };
             }
 
