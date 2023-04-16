@@ -148,7 +148,10 @@
                 // var angleDegrees = angleRadians * radToDeg;
                 // return angleDegrees;
 
-                // Screw the above, only 6 possible angles: 0, 45, 135, 180, 225, 315 (, back to 360/0)
+                // Screw the above, only 6 possible angles when pointy top: 0, 60, 120, 180, 240, 300
+                // If I'd chosen flat-top, they'd have been: 30, 90, 150, 210, 270, 330.
+                // (Spiky-top vertices/corners are (not middle of sides) at: 30, 90, 150, 210, 270, 330)
+                // (Flat-top vertices/corners are (not middle of sides) at: 0, 60, 120, 180, 240, 300)
                 if(firstVec2.y == secondVec2.y) {
                     if(firstVec2.x < secondVec2.x) {
                         return 0;
@@ -157,15 +160,15 @@
                     }
                 } else if(firstVec2.y < secondVec2.y) {
                     if(firstVec2.x < secondVec2.x) {
-                        return 315;
+                        return 300;
                     } else {
-                        return 225;
+                        return 240;
                     }
                 } else {
                     if(firstVec2.x < secondVec2.x) {
-                        return 45;
+                        return 60;
                     } else {
-                        return 135;
+                        return 120;
                     }
                 }
             }
