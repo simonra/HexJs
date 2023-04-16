@@ -251,12 +251,12 @@
                 // nextArrow.style.minHeight = `${arrowPosition.height}px`;
                 // nextArrow.style.maxWidth = `${arrowPosition.width}px`;
                 // nextArrow.style.maxHeight = `${arrowPosition.height}px`;
-                nextArrow.style.transform = `rotate(-${arrowPosition.angle}deg)`;
                 nextArrow.style.width = `${arrowPosition.width}px`;
                 nextArrow.style.height = `${arrowPosition.height}px`;
                 nextArrow.style.left = `${arrowPosition.offsetLeft}px`;
                 nextArrow.style.top = `${arrowPosition.offsetTop}px`;
-                nextArrow.appendChild(document.createTextNode(`aaaaaaa`));
+                nextArrow.style.transform = `rotate(-${arrowPosition.angle}deg)`;
+                // nextArrow.appendChild(document.createTextNode(`i: ${i}`));
                 GridContainer.appendChild(nextArrow);
             }
         }
